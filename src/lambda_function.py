@@ -32,6 +32,6 @@ def lambda_handler(event, context):
         return {
             "statusCode": 500,
             "error": str(exc),
-            "chat_id": chat_id,
+            # "chat_id": chat_id,
             "text": "Erro",
         }
