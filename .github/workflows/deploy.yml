@@ -8,6 +8,7 @@ on:
 env:
   AWS_REGION: us-east-1
   LAMBDA_FUNCTION_NAME: potiguana-ufrn-bot
+  LAMBDA_ARN: arn:aws:lambda:us-east-1:461018071700:function:potiguana-ufrn-bot
   LAYER_NAME: potiguana-requirements-layer
   LAYER_DESCRIPTION: "Python libraries for my Potiguana bot"
 
@@ -30,6 +31,18 @@ jobs:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ env.AWS_REGION }}
+
+    - name: Wait lambda previous updates
+      run: |
+        STATE=$(aws lambda get-function --function-name ${{ env.LAMBDA_ARN }} --query 'Configuration.LastUpdateStatus' --output text)
+        echo $STATE
+        while [[ "$STATE" == "InProgress" ]]
+        do
+            echo "sleep 5sec ...."
+            sleep 5s
+            STATE=$(aws lambda get-function --function-name ${{ env.LAMBDA_ARN }} --query 'Configuration.LastUpdateStatus' --output text)
+            echo $STATE
+        done
 
     - name: Package Lambda Code
       working-directory: ./src
