@@ -40,7 +40,6 @@ jobs:
     - name: Deploy Lambda Function
       working-directory: ./src
       run: |
-        aws lambda put-function-concurrency --function-name ${{ env.LAMBDA_FUNCTION_NAME }} --reserved-concurrent-executions 0
         aws lambda update-function-code \
           --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
           --zip-file fileb://../deployment-package.zip > /dev/null
@@ -48,4 +47,3 @@ jobs:
           --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
           --layers arn:aws:lambda:us-east-1:461018071700:layer:potiguana-requirements-layer:10
           --timeout 60 > /dev/null
-        aws lambda delete-function-concurrency --function-name ${{ env.LAMBDA_FUNCTION_NAME }}
