@@ -32,18 +32,6 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ env.AWS_REGION }}
 
-    - name: Wait lambda previous updates
-      run: |
-        STATE=$(aws lambda get-function --function-name ${{ env.LAMBDA_ARN }} --query 'Configuration.LastUpdateStatus' --output text)
-        echo $STATE
-        while [[ "$STATE" == "InProgress" ]]
-        do
-            echo "sleep 5sec ...."
-            sleep 5s
-            STATE=$(aws lambda get-function --function-name ${{ env.LAMBDA_ARN }} --query 'Configuration.LastUpdateStatus' --output text)
-            echo $STATE
-        done
-
     - name: Package Lambda Code
       working-directory: ./src
       run: |
@@ -52,9 +40,12 @@ jobs:
     - name: Deploy Lambda Function
       working-directory: ./src
       run: |
+        aws lambda put-function-concurrency --function-name ${{ env.LAMBDA_FUNCTION_NAME }} --reserved-concurrent-executions 0
         aws lambda update-function-code \
           --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
           --zip-file fileb://../deployment-package.zip > /dev/null
         aws lambda update-function-configuration \
           --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
-          --layers arn:aws:lambda:us-east-1:461018071700:layer:potiguana-requirements-layer:10 > /dev/null
+          --layers arn:aws:lambda:us-east-1:461018071700:layer:potiguana-requirements-layer:10
+          --timeout 60 > /dev/null
+        aws lambda delete-function-concurrency --function-name ${{ env.LAMBDA_FUNCTION_NAME }}
