@@ -7,6 +7,11 @@ name = "pypi"
 pydantic-settings = "*"
 fastapi = "*"
 requests = "*"
+uvicorn = "*"
+langchain = "*"
+langchain-aws = "*"
+langchain-qdrant = "*"
+python-telegram-bot = "*"
 
 [dev-packages]
 pre-commit = "*"
