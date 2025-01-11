@@ -43,7 +43,3 @@ jobs:
         aws lambda update-function-code \
           --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
           --zip-file fileb://../deployment-package.zip > /dev/null
-        aws lambda update-function-configuration \
-          --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
-          --layers arn:aws:lambda:us-east-1:461018071700:layer:potiguana-requirements-layer:10
-          --timeout 60 > /dev/null
