@@ -31,7 +31,7 @@ jobs:
 
     - name: Generate requirements.txt
       working-directory: ./src
-      run: pipenv lock --requirements > requirements.txt
+      run: pipenv requirements > requirements.txt
 
     - name: Install dependencies
       working-directory: ./src
