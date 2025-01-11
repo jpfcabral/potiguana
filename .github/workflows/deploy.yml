@@ -9,6 +9,7 @@ env:
   AWS_REGION: us-east-1
   LAMBDA_FUNCTION_NAME: potiguana-ufrn-bot
   LAYER_NAME: potiguana-requirements-layer
+  LAYER_DESCRIPTION: "Python libraries for my Potiguana bot"
 
 jobs:
   deploy:
@@ -23,6 +24,26 @@ jobs:
       with:
         python-version: '3.11'
 
+    - name: Install Pipenv
+      run: |
+        python -m pip install --upgrade pip
+        pip install pipenv
+
+    - name: Generate requirements.txt
+      working-directory: .
+      run: |
+        pipenv clean
+        pipenv requirements > requirements.txt
+
+    - name: Create Layer Package
+      working-directory: .
+      run: |
+        mkdir -p package/python/lib/python3.11/site-packages
+        pip install -r requirements.txt -t ./package/python/lib/python3.11/site-packages
+        cd package
+        zip -r ../package.zip .
+        cd ..
+
     - name: Package Lambda Code
       working-directory: ./src
       run: |
@@ -34,6 +55,19 @@ jobs:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ env.AWS_REGION }}
+
+    - name: Create or Update Lambda Layer
+      working-directory: .
+      id: create_layer
+      run: |
+        LAYER_VERSION=$(aws lambda publish-layer-version \
+          --layer-name ${{ env.LAYER_NAME }} \
+          --description "${{ env.LAYER_DESCRIPTION }}" \
+          --zip-file fileb://package.zip \
+          --compatible-runtimes python3.11 \
+          --query 'Version' \
+          --output text)
+        echo "layer_version=$LAYER_VERSION" >> $GITHUB_ENV
 
     - name: Deploy Lambda Function
       working-directory: ./src
