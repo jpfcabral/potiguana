@@ -30,22 +30,22 @@ jobs:
         pip install pipenv
 
     - name: Generate requirements.txt
-      working-directory: ./src
+      working-directory: .
       run: pipenv requirements > requirements.txt
 
-    - name: Install dependencies
-      working-directory: ./src
+    - name: Create Layer Package
+      working-directory: .
       run: |
-        mkdir -p package
-        pip install -r requirements.txt -t ./package
+        mkdir -p package/python/lib/python3.11/site-packages
+        pip install -r requirements.txt -t ./package/python/lib/python3.11/site-packages
         cd package
-        zip -r ../deployment-package.zip .
+        zip -r ../package.zip .
         cd ..
 
     - name: Package Lambda Code
       working-directory: ./src
       run: |
-        zip -r ../deployment-package.zip . -x "package/*" "requirements.txt"
+        zip -r ../deployment-package.zip .  # Compacta apenas o conteúdo de `src`
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v2
@@ -55,14 +55,13 @@ jobs:
         aws-region: ${{ env.AWS_REGION }}
 
     - name: Create or Update Lambda Layer
-      working-directory: ./src
+      working-directory: .
       id: create_layer
       run: |
-        zip -r layer-package.zip package/
         LAYER_VERSION=$(aws lambda publish-layer-version \
           --layer-name ${{ env.LAYER_NAME }} \
           --description "${{ env.LAYER_DESCRIPTION }}" \
-          --zip-file fileb://layer-package.zip \
+          --zip-file fileb://package.zip \
           --compatible-runtimes python3.11 \
           --query 'Version' \
           --output text)
@@ -73,7 +72,7 @@ jobs:
       run: |
         aws lambda update-function-code \
           --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
-          --zip-file fileb://deployment-package.zip
+          --zip-file fileb://../deployment-package.zip > /dev/null
         aws lambda update-function-configuration \
           --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
-          --layers arn:aws:lambda:${{ env.AWS_REGION }}:$(aws sts get-caller-identity --query "Account" --output text):layer:${{ env.LAYER_NAME }}:${{ env.layer_version }}
+          --layers arn:aws:lambda:${{ env.AWS_REGION }}:$(aws sts get-caller-identity --query "Account" --output text):layer:${{ env.LAYER_NAME }}:${{ env.layer_version }} > /dev/null
