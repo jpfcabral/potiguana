@@ -1,4 +1,5 @@
 import json
+import traceback
 
 import requests
 from loguru import logger
@@ -9,7 +10,7 @@ from services.chatbot_service import ChatbotService
 
 def lambda_handler(event, context):
     try:
-        logger.info("Init telegram request")
+        logger.info(f"Init telegram request with: {event}")
         chatbot = ChatbotService()
         body = json.loads(event["body"])
         chat_id = body["message"]["chat"]["id"]
@@ -29,9 +30,10 @@ def lambda_handler(event, context):
         return {"statusCode": 200}
     except Exception as exc:
         logger.error(exc)
+        logger.error(f"Detalhes do traceback:\n {traceback.format_exc()}")
         return {
             "statusCode": 500,
             "error": str(exc),
-            # "chat_id": chat_id,
+            "chat_id": chat_id,
             "text": "Erro",
         }

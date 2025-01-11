@@ -12,6 +12,7 @@ langchain = "*"
 langchain-aws = "*"
 langchain-qdrant = "*"
 python-telegram-bot = "*"
+loguru = "*"
 
 [dev-packages]
 pre-commit = "*"

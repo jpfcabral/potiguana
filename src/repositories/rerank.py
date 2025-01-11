@@ -34,7 +34,7 @@ class BedrockRerank:
         """
 
         if not client:
-            client = boto3.client("bedrock-runtime")
+            client = boto3.client("bedrock-runtime", region_name="us-west-2")
 
         # Serialize dictionaries to JSON strings to simulate mixed inputs
         serialized_documents = [
