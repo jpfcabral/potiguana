@@ -24,31 +24,6 @@ jobs:
       with:
         python-version: '3.11'
 
-    - name: Install Pipenv
-      run: |
-        python -m pip install --upgrade pip
-        pip install pipenv
-
-    - name: Generate requirements.txt
-      working-directory: .
-      run: |
-        pipenv clean
-        pipenv requirements > requirements.txt
-
-    - name: Create Layer Package
-      working-directory: .
-      run: |
-        mkdir -p package/python/lib/python3.11/site-packages
-        pip install -r requirements.txt -t ./package/python/lib/python3.11/site-packages
-        cd package
-        zip -r ../package.zip .
-        cd ..
-
-    - name: Package Lambda Code
-      working-directory: ./src
-      run: |
-        zip -r ../deployment-package.zip .  # Compacta apenas o conteúdo de `src`
-
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v2
       with:
@@ -56,18 +31,10 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ env.AWS_REGION }}
 
-    - name: Create or Update Lambda Layer
-      working-directory: .
-      id: create_layer
+    - name: Package Lambda Code
+      working-directory: ./src
       run: |
-        LAYER_VERSION=$(aws lambda publish-layer-version \
-          --layer-name ${{ env.LAYER_NAME }} \
-          --description "${{ env.LAYER_DESCRIPTION }}" \
-          --zip-file fileb://package.zip \
-          --compatible-runtimes python3.11 \
-          --query 'Version' \
-          --output text)
-        echo "layer_version=$LAYER_VERSION" >> $GITHUB_ENV
+        zip -r ../deployment-package.zip .  # Compacta apenas o conteúdo de `src`
 
     - name: Deploy Lambda Function
       working-directory: ./src
@@ -77,4 +44,4 @@ jobs:
           --zip-file fileb://../deployment-package.zip > /dev/null
         aws lambda update-function-configuration \
           --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
-          --layers arn:aws:lambda:${{ env.AWS_REGION }}:$(aws sts get-caller-identity --query "Account" --output text):layer:${{ env.LAYER_NAME }}:${{ env.layer_version }} > /dev/null
+          --layers arn:aws:lambda:us-east-1:461018071700:layer:potiguana-requirements-layer:10 > /dev/null
