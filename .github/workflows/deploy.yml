@@ -1,0 +1,79 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  AWS_REGION: us-east-1
+  LAMBDA_FUNCTION_NAME: potiguana-ufrn-bot
+  LAYER_NAME: potiguana-requirements-layer
+  LAYER_DESCRIPTION: "Python libraries for my Potiguana bot"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install Pipenv
+      run: |
+        python -m pip install --upgrade pip
+        pip install pipenv
+
+    - name: Generate requirements.txt
+      working-directory: ./src
+      run: pipenv lock --requirements > requirements.txt
+
+    - name: Install dependencies
+      working-directory: ./src
+      run: |
+        mkdir -p package
+        pip install -r requirements.txt -t ./package
+        cd package
+        zip -r ../deployment-package.zip .
+        cd ..
+
+    - name: Package Lambda Code
+      working-directory: ./src
+      run: |
+        zip -r ../deployment-package.zip . -x "package/*" "requirements.txt"
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Create or Update Lambda Layer
+      working-directory: ./src
+      id: create_layer
+      run: |
+        zip -r layer-package.zip package/
+        LAYER_VERSION=$(aws lambda publish-layer-version \
+          --layer-name ${{ env.LAYER_NAME }} \
+          --description "${{ env.LAYER_DESCRIPTION }}" \
+          --zip-file fileb://layer-package.zip \
+          --compatible-runtimes python3.11 \
+          --query 'Version' \
+          --output text)
+        echo "layer_version=$LAYER_VERSION" >> $GITHUB_ENV
+
+    - name: Deploy Lambda Function
+      working-directory: ./src
+      run: |
+        aws lambda update-function-code \
+          --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
+          --zip-file fileb://deployment-package.zip
+        aws lambda update-function-configuration \
+          --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
+          --layers arn:aws:lambda:${{ env.AWS_REGION }}:$(aws sts get-caller-identity --query "Account" --output text):layer:${{ env.LAYER_NAME }}:${{ env.layer_version }}

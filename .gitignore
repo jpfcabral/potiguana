@@ -160,3 +160,9 @@ cython_debug/
 #.idea/
 
 /chroma
+.python-version
+**/*.csv
+**/*.json
+**/*.jsonl
+**/*.png
+.env
