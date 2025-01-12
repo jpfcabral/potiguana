@@ -43,8 +43,7 @@ def lambda_handler(event, context):
         logger.error(exc)
         logger.error(f"Detalhes do traceback:\n {traceback.format_exc()}")
         return {
-            "statusCode": 500,
+            "statusCode": 200,
             "error": str(exc),
-            "chat_id": chat_id,
             "text": "Erro",
         }
