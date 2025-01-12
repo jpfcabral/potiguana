@@ -23,7 +23,18 @@ def lambda_handler(event, context):
         response = chatbot.answer(query=message_part)
 
         url = f"https://api.telegram.org/bot{settings.TELEGRAM_API_TOKEN}/sendMessage"
-        payload = {"chat_id": chat_id, "text": response["content"]}
+        payload = {
+            "chat_id": chat_id,
+            "text": response["content"] + "\n\n Essa resposta foi útil?",
+            "reply_markup": {
+                "inline_keyboard": [
+                    [
+                        {"text": "Sim", "callback_data": "sim"},
+                        {"text": "Não", "callback_data": "nao"},
+                    ]
+                ]
+            },
+        }
 
         r = requests.post(url, json=payload, timeout=10)
 
