@@ -22,3 +22,8 @@ repos:
         exclude: ^\.github/
       - id: end-of-file-fixer
       - id: trailing-whitespace
+
+  - repo: https://github.com/kynan/nbstripout
+    rev: 0.5.0
+    hooks:
+      - id: nbstripout
