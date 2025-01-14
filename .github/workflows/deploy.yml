@@ -8,9 +8,6 @@ on:
 env:
   AWS_REGION: us-east-1
   LAMBDA_FUNCTION_NAME: potiguana-ufrn-bot
-  LAMBDA_ARN: arn:aws:lambda:us-east-1:461018071700:function:potiguana-ufrn-bot
-  LAYER_NAME: potiguana-requirements-layer
-  LAYER_DESCRIPTION: "Python libraries for my Potiguana bot"
 
 jobs:
   deploy:
