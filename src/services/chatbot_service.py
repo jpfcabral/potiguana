@@ -20,7 +20,7 @@ class ChatbotService:
     to generate responses based on user queries.
     """
 
-    def __init__(self, model_name: str = "amazon.nova-micro-v1:0"):
+    def __init__(self, model_name: str = "amazon.nova-micro-v1:0", repository=None):
         """
         Initializes the ChatbotService with the specified model.
 

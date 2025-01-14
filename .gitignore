@@ -166,3 +166,6 @@ cython_debug/
 **/*.jsonl
 **/*.png
 .env
+**/*.pdf
+**/*.zip
+**/*.txt
