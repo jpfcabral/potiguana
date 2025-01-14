@@ -9,6 +9,9 @@ from services.chatbot_service import ChatbotService
 
 
 def lambda_handler(event, context):
+    logger.info(f"Received event: {event}")
+    logger.info(f"Received context: {context}")
+
     try:
         logger.info(f"Init telegram request with: {event}")
         chatbot = ChatbotService()
