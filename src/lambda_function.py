@@ -1,10 +1,8 @@
 import json
 import traceback
 
-import requests
 from loguru import logger
 
-from config.settings import settings
 from services.chatbot_service import ChatbotService
 from services.telegram_service import TelegramService
 
@@ -12,18 +10,23 @@ from services.telegram_service import TelegramService
 def lambda_handler(event, context):
     logger.info(f"Received event: {event}")
     logger.info(f"Received context: {context}")
+
+    chatbot = ChatbotService()
+    telegram_service = TelegramService()
+
     try:
         body = json.loads(event["body"])
 
         if "message" in body:
-            chat_id = body["message"]["chat"]["id"]
             message_part = body["message"].get("text")
 
-            chatbot = ChatbotService()
-            telegram_service = TelegramService()
-
             response = chatbot.answer(query=message_part)
-            telegram_service.send_message(chat_id=chat_id, message=response["content"])
+            telegram_service.send_message(body=body, message=response["content"])
+
+            return {"statusCode": 200}
+
+        if "callback_query" in body:
+            telegram_service.save_callback(body=body)
 
             return {"statusCode": 200}
 
