@@ -42,4 +42,4 @@ class TelegramService:
 
     def save_callback(self, body: dict):
         """"""
-        return self.repository.insert(data=body, table_name="callback")
+        return self.repository.insert(data=body, table_name="callbacks")
