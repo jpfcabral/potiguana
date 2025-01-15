@@ -4,10 +4,12 @@ from time import sleep
 from langchain.prompts import PromptTemplate
 from langchain_aws import BedrockEmbeddings, ChatBedrock
 from langchain_core.messages import BaseMessage
+from loguru import logger
 
 from config.prompt import GENERATOR_PROMPT
 from repositories.qdrant_repository import QDrantRepository
 from repositories.rerank import BedrockRerank
+from services.telegram_service import DynamoDBRepository
 
 random.seed(21)
 
@@ -20,13 +22,18 @@ class ChatbotService:
     to generate responses based on user queries.
     """
 
-    def __init__(self, model_name: str = "amazon.nova-micro-v1:0", repository=None):
+    def __init__(
+        self,
+        model_name: str = "amazon.nova-micro-v1:0",
+        repository: DynamoDBRepository = DynamoDBRepository(),
+    ):
         """
         Initializes the ChatbotService with the specified model.
 
         Args:
             model_name (str): The identifier of the LLM model to use. Defaults to 'amazon.nova-micro-v1:0'.
         """
+        self.repository = repository
 
         self.llm = ChatBedrock(model_id=model_name, temperature=0.0, region="us-east-1")
         self.embedding = BedrockEmbeddings()
@@ -61,7 +68,7 @@ class ChatbotService:
             llm=self.llm, prompt=prompt
         )
 
-        print(response)
+        logger.debug(f"LLM Response: {response}")
 
         return response.dict()
 
