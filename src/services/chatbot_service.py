@@ -68,9 +68,12 @@ class ChatbotService:
             llm=self.llm, prompt=prompt
         )
 
+        response_dict = response.dict()
+        self.repository.insert(data=response_dict, table_name="responses")
+
         logger.debug(f"LLM Response: {response}")
 
-        return response.dict()
+        return response_dict
 
     def invoke_llm_with_backoff(self, llm: ChatBedrock, prompt, max_retries=5):
         """
