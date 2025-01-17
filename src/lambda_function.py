@@ -30,6 +30,8 @@ def lambda_handler(event, context):
             return {"statusCode": 200}
 
         if "callback_query" in body:
+            callback_id = body["callback_query"]["id"]
+            telegram_service.answer_callback_query(id=callback_id)
             telegram_service.save_callback(body=body)
 
             return {"statusCode": 200}

@@ -1,6 +1,7 @@
 from typing import Any
 
 import requests
+from loguru import logger
 
 from config.settings import settings
 from repositories.dynamodb_repository import DynamoDBRepository
@@ -52,3 +53,15 @@ class TelegramService:
     def save_callback(self, body: dict):
         """"""
         return self.repository.insert(data=body, table_name="callbacks")
+
+    def answer_callback_query(self, id: str):
+        payload = dict()
+
+        payload["callback_query_id"] = id
+
+        url = f"https://api.telegram.org/bot{self._api_token}/answerCallbackQuery"
+
+        response = requests.post(url=url, json=payload, timeout=15)
+        response.raise_for_status()
+
+        return response.json()
