@@ -15,22 +15,31 @@ class TelegramService:
         self._api_token = api_token
         self.repository = repository
 
-    def send_message(self, body: dict, message: str):
+    def send_message(
+        self,
+        body: dict,
+        message: str,
+        ask_feedback: bool = False,
+        add_suggestions: bool = False,
+    ):
+        payload = dict()
         chat_id = body["message"]["chat"]["id"]
 
         url = f"https://api.telegram.org/bot{self._api_token}/sendMessage"
-        payload = {
-            "chat_id": chat_id,
-            "text": message + "\n\n Essa resposta foi útil?",
-            "reply_markup": {
+
+        payload["chat_id"] = chat_id
+        payload["text"] = message
+
+        if ask_feedback:
+            payload["text"] = payload["text"] + "\n\n Essa resposta foi útil?"
+            payload["reply_markup"] = {
                 "inline_keyboard": [
                     [
                         {"text": "Sim", "callback_data": "sim"},
                         {"text": "Não", "callback_data": "nao"},
                     ]
                 ]
-            },
-        }
+            }
 
         response = requests.post(url, json=payload, timeout=15)
         response.raise_for_status()

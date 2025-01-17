@@ -21,7 +21,11 @@ def lambda_handler(event, context):
             message_part = body["message"].get("text")
 
             response = chatbot.answer(query=message_part)
-            telegram_service.send_message(body=body, message=response["content"])
+            telegram_service.send_message(
+                body=body,
+                message=response["content"],
+                ask_feedback=True if "route" not in response else False,
+            )
 
             return {"statusCode": 200}
 
