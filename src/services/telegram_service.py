@@ -33,14 +33,7 @@ class TelegramService:
 
         if ask_feedback:
             payload["text"] = payload["text"] + "\n\n Essa resposta foi útil?"
-            payload["reply_markup"] = {
-                "inline_keyboard": [
-                    [
-                        {"text": "Sim", "callback_data": "sim"},
-                        {"text": "Não", "callback_data": "nao"},
-                    ]
-                ]
-            }
+            payload["reply_markup"] = self._get_inline_keyboard()
 
         response = requests.post(url, json=payload, timeout=15)
         response.raise_for_status()
@@ -49,6 +42,17 @@ class TelegramService:
         self.repository.insert(data=body, table_name="messages")
 
         return response.json()
+
+    def _get_inline_keyboard(self):
+        data = dict()
+        data["inline_keyboard"] = [
+            [
+                {"text": "Sim", "callback_data": "sim"},
+                {"text": "Não", "callback_data": "nao"},
+            ]
+        ]
+
+        return data
 
     def save_callback(self, body: dict):
         """"""
