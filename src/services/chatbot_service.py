@@ -56,10 +56,10 @@ class ChatbotService:
         route: str = self.semantic_router.get_route(query)
 
         if route == "greetings":
-            return {"response": "Olá, eu sou a potiguana"}
+            return {"content": "Olá, eu sou a potiguana"}
 
         if route == "farewells":
-            return {"response": "Até logo"}
+            return {"content": "Até logo"}
 
         # Retrieve and rerank contexts
         context_docs = self.vector_store.search(query=query)
