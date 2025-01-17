@@ -35,6 +35,9 @@ class TelegramService:
             payload["text"] = payload["text"] + "\n\n Essa resposta foi útil?"
             payload["reply_markup"] = self._get_inline_keyboard()
 
+        if add_suggestions:
+            payload["reply_markup"] = self._get_reply_keyboard_markup()
+
         response = requests.post(url, json=payload, timeout=15)
         response.raise_for_status()
 
@@ -51,6 +54,21 @@ class TelegramService:
                 {"text": "Não", "callback_data": "nao"},
             ]
         ]
+
+        return data
+
+    def _get_reply_keyboard_markup(self):
+        data = dict()
+
+        data["keyboard"] = [
+            [
+                {"text": "O que é IES?"},
+                {"text": "O que preciso fazer para cancelar o curso?"},
+            ]
+        ]
+
+        data["resize_keyboard"] = True
+        data["one_time_keyboard"] = True
 
         return data
 

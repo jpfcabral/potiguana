@@ -25,6 +25,9 @@ def lambda_handler(event, context):
                 body=body,
                 message=response["content"],
                 ask_feedback=True if "route" not in response else False,
+                add_suggestions=True
+                if response.get("route", None) == "greetings"
+                else False,
             )
 
             return {"statusCode": 200}

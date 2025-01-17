@@ -56,7 +56,10 @@ class ChatbotService:
         route: str = self.semantic_router.get_route(query)
 
         if route == "greetings":
-            return {"content": "Olá, eu sou a potiguana", "route": "greetings"}
+            return {
+                "content": "Olá, eu sou a potiguana. Como posso ajudar?",
+                "route": "greetings",
+            }
 
         if route == "farewells":
             return {"content": "Até logo", "route": "farewells"}
