@@ -7,6 +7,7 @@ from langchain_core.messages import BaseMessage
 from loguru import logger
 
 from config.prompt import GENERATOR_PROMPT
+from config.texts import GREETING
 from repositories.qdrant_repository import QDrantRepository
 from repositories.rerank import BedrockRerank
 from repositories.semantic_router import SemanticRouter
@@ -57,7 +58,7 @@ class ChatbotService:
 
         if route == "greetings":
             return {
-                "content": "Olá, eu sou a potiguana. Como posso ajudar?",
+                "content": GREETING,
                 "route": "greetings",
             }
 
@@ -108,12 +109,14 @@ class ChatbotService:
             try:
                 return llm.invoke(prompt)
             except Exception as exc:
-                print(exc)
+                logger.warning(exc)
                 retries += 1
                 wait_time = random.uniform(  # nosec
                     2**retries, 2**retries + 5
                 )  # Exponential backoff
-                print(f"Throttling error. Retrying in {wait_time:.2f} seconds...")
+                logger.warning(
+                    f"Throttling error. Retrying in {wait_time:.2f} seconds..."
+                )
                 sleep(wait_time)
 
         raise Exception("Max retries reached, could not invoke model.")
