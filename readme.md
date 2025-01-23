@@ -20,3 +20,8 @@ Abaixo está o roadmap de implementação dos documentos que serão cobertos fut
 | Regimentos Internos            | ⏳ Próximo    | Planejado para futura integração             |
 | Resoluções                      | ⏳ Próximo    | Planejado para futura integração             |
 | Notícias                        | ⏳ Próximo    | Planejado para futura integração             |
+
+
+## Arquitetura do projeto
+
+<img src="docs/potiguana-arquitetura-fundo.png" alt="Arquitetura do sistema" />
