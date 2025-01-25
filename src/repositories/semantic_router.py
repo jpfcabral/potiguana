@@ -2,6 +2,7 @@ import os
 
 from langchain_aws.embeddings import BedrockEmbeddings
 from langchain_qdrant import QdrantVectorStore
+from loguru import logger
 from qdrant_client import QdrantClient
 
 
@@ -56,4 +57,8 @@ class SemanticRouter:
 
         # Find the route with the highest score
         best_result = max(filtered_results, key=lambda x: x[2])
+
+        logger.info(
+            f"Router best score | query: {query}, route: {best_result[0]}, utterance: {best_result[1]}, score: {best_result[2]}"
+        )
         return best_result[0]  # Return the route of the best result
