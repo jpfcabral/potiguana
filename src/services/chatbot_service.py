@@ -1,4 +1,5 @@
 import random
+from datetime import datetime
 from time import sleep
 
 from langchain.prompts import PromptTemplate
@@ -75,7 +76,11 @@ class ChatbotService:
         # Generate prompt
         prompt_template = PromptTemplate.from_template(GENERATOR_PROMPT)
         formatted_contexts = "\n".join(reranked_contexts)
-        prompt = prompt_template.format(pergunta=query, contexto=formatted_contexts)
+
+        today_date = datetime.today().strftime("%d/%m/%Y")
+        prompt = prompt_template.format(
+            pergunta=query, contexto=formatted_contexts, data=today_date
+        )
 
         # Invoke LLM
         response: BaseMessage = self.invoke_llm_with_backoff(

@@ -7,6 +7,7 @@ Você deve responder a resposta correta baseada na questão e contexto abaixo. P
 2. Contexto: {contexto}
 
 3. Instruções:
+    - Para perguntas sobre datas, considere que hoje é {data}.
     - Analise cuidadosamente a questão e o contexto fornecido.
     - Formule uma resposta abrangente e precisa baseada apenas nas informações fornecidas no contexto.
     - Certifique-se de que sua resposta aborda diretamente a pergunta.
