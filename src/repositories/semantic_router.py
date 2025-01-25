@@ -41,7 +41,7 @@ class SemanticRouter:
         ]
         return detailed_results
 
-    def get_route(self, query, threshold: float = 0.8):
+    def get_route(self, query, threshold: float = 0.9):
         """Retrieve the most relevant route for a given query based on the highest score exceeding the threshold."""
         detailed_results = self.get_route_details(query=query)
 
