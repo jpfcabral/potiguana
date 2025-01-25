@@ -62,7 +62,7 @@ class TelegramService:
 
         data["keyboard"] = [
             [
-                {"text": "O que é IES?"},
+                {"text": "Quando começam as aulas?"},
                 {"text": "O que preciso fazer para cancelar o curso?"},
             ]
         ]
