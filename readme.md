@@ -16,8 +16,8 @@ Abaixo está o roadmap de implementação dos documentos que serão cobertos fut
 | Documento                      | Status      | Descrição                                    |
 |-------------------------------|-------------|----------------------------------------------|
 | Regulamentos dos Cursos de Graduação        | ✅ Concluído | Disponível para consulta                     |
-| Calendário Universitário       | 🛠️ Em andamento | Implementação em progresso                  |
-| Regimentos Internos            | ⏳ Próximo    | Planejado para futura integração             |
+| Calendário Universitário       | ✅ Concluído | Disponível para consulta                  |
+| Regimentos Internos            | 🛠️ Em andamento    | Implementação em progresso             |
 | Resoluções                      | ⏳ Próximo    | Planejado para futura integração             |
 | Notícias                        | ⏳ Próximo    | Planejado para futura integração             |
 
