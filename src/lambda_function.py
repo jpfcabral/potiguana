@@ -7,11 +7,11 @@ from config.texts import GREETING
 from services.chatbot_service import ChatbotService
 from services.telegram_service import TelegramService
 
+chatbot = ChatbotService()
+telegram_service = TelegramService()
+
 
 def answer_message(body: dict):
-    chatbot = ChatbotService()
-    telegram_service = TelegramService()
-
     message_part = body["message"].get("text")
 
     if message_part == "/start":
@@ -30,8 +30,6 @@ def answer_message(body: dict):
 
 
 def answer_callback_query(body: dict):
-    telegram_service = TelegramService()
-
     callback_id = body["callback_query"]["id"]
     telegram_service.answer_callback_query(id=callback_id)
     telegram_service.save_callback(body=body)
