@@ -10,7 +10,7 @@ repos:
       - id: isort
 
   - repo: https://github.com/PyCQA/bandit
-    rev: 1.7.5  # Use a versão mais recente disponível
+    rev: 1.8.2  # Use a versão mais recente disponível
     hooks:
       - id: bandit
         args: ["-r"]  # Recursivo, para analisar todo o repositório
