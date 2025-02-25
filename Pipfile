@@ -9,10 +9,11 @@ fastapi = "*"
 requests = "*"
 uvicorn = "*"
 langchain = "*"
-langchain-aws = "*"
 langchain-qdrant = "*"
 python-telegram-bot = "*"
 loguru = "*"
+langchain-aws = "==0.2.13"
+langgraph = "*"
 
 [dev-packages]
 pre-commit = "*"
