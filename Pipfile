@@ -5,14 +5,14 @@ name = "pypi"
 
 [packages]
 pydantic-settings = "*"
-fastapi = "*"
 requests = "*"
-uvicorn = "*"
 langchain = "*"
-langchain-aws = "*"
 langchain-qdrant = "*"
-python-telegram-bot = "*"
 loguru = "*"
+langchain-aws = "==0.2.13"
+langgraph = "*"
+langsmith = "*"
+langchain-openai = "*"
 
 [dev-packages]
 pre-commit = "*"
