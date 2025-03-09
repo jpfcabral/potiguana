@@ -7,14 +7,10 @@ on:
   workflow_dispatch:
 
 env:
-  AWS_REGION: us-east-1
-  LAMBDA_FUNCTION_NAME: potiguana-ufrn-bot
-  PACKAGE_DIR: package
-  PYTHON_VERSION: python3.11
-  REQUIREMENTS_FILE: requirements.txt
-  PACKAGE_ZIP: package.zip
-  LAMBDA_BUCKET: potiguana-bot-packages
-  LAYER_NAME: potiguana-requirements-layer
+  AWS_REGION: us-west-2
+  LAMBDA_FUNCTION_NAME: potiguana-bot-lambda
+  ECR_REPOSITORY: potiguana-lambda-repo
+  IMAGE_TAG: latest
 
 jobs:
   deploy:
@@ -24,11 +20,6 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v3
 
-    - name: Setup Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
-
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v2
       with:
@@ -36,53 +27,18 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ env.AWS_REGION }}
 
-    - name: Upload Dependencies
+    - name: Login to Amazon ECR
       run: |
-        pip install -q pipenv
-        pipenv requirements > ${{ env.REQUIREMENTS_FILE }}
-        sudo rm -rf ${{ env.PACKAGE_DIR }}
-        mkdir -p ${{ env.PACKAGE_DIR }}/python/lib/${{ env.PYTHON_VERSION }}/site-packages
-        pip install -r ${{ env.REQUIREMENTS_FILE }} -t ${{ env.PACKAGE_DIR }}/python/lib/${{ env.PYTHON_VERSION }}/site-packages --upgrade -qqq
-        cd ${{ env.PACKAGE_DIR }}
-        zip -rq ../${{ env.PACKAGE_ZIP }} .
-        cd ..
-        aws s3 cp ${{ env.PACKAGE_ZIP }} s3://${{ env.LAMBDA_BUCKET }}/${{ env.PACKAGE_ZIP }}
+        aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
 
-    - name: Deploy Lambda Layer
+    - name: Build, Push and Pull Docker Image
       run: |
-        LAYER_VERSION=$(aws lambda publish-layer-version \
-          --layer-name ${{ env.LAYER_NAME }} \
-          --content S3Bucket=${{ env.LAMBDA_BUCKET }},S3Key=${{ env.PACKAGE_ZIP }} \
-          --compatible-runtimes ${{ env.PYTHON_VERSION }} \
-          --query 'Version' --output text)
-        echo "LAYER_VERSION=$LAYER_VERSION" >> $GITHUB_ENV
+        docker build -t ${{ env.ECR_REPOSITORY }} .
+        docker tag ${{ env.ECR_REPOSITORY }}:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+        docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
 
-    - name: Package Lambda Code
-      working-directory: ./src
-      run: |
-        zip -r ../deployment-package.zip .  # Compacta apenas o conteúdo de `src`
-
-    - name: Deploy Lambda Layer
-      working-directory: ./src
-      run: |
-        aws lambda update-function-configuration \
-          --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
-          --layers arn:aws:lambda:${{ env.AWS_REGION }}:${{ secrets.AWS_ACCOUNT_ID }}:layer:${{ env.LAYER_NAME }}:$LAYER_VERSION
-
-    - name: Wait for Lambda Update
-      run: |
-        echo "Waiting for Lambda update to complete..."
-        STATUS="Updating"
-        while [ "$STATUS" == "Updating" ]; do
-          sleep 5
-          STATUS=$(aws lambda get-function-configuration --function-name ${{ env.LAMBDA_FUNCTION_NAME }} --query 'State' --output text)
-          echo "Current status: $STATUS"
-        done
-        echo "Lambda update completed."
-
-    - name: Deploy Lambda Code
-      working-directory: ./src
+    - name: Deploy Lambda from ECR Image
       run: |
         aws lambda update-function-code \
           --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
-          --zip-file fileb://../deployment-package.zip > /dev/null
+          --image-uri ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
