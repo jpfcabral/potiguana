@@ -18,7 +18,12 @@ jobs:
 
     steps:
     - name: Checkout Code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
+
+    - name: Install Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: latest
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v2
@@ -27,11 +32,35 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ env.AWS_REGION }}
 
+    - name: Terraform Init
+      run: terraform init
+      working-directory: ./infra
+
+    - name: Terraform Validate
+      run: terraform validate
+      working-directory: ./infra
+
+    - name: Terraform Plan
+      run: terraform plan -out=tfplan
+      working-directory: ./infra
+      env:
+        TF_VAR_aws_account_id: ${{ secrets.AWS_ACCOUNT_ID }}
+        TF_VAR_lambda_function_name: ${{ env.LAMBDA_FUNCTION_NAME }}
+        TF_VAR_image_tag: ${{ env.IMAGE_TAG }}
+
+    - name: Terraform Apply
+      run: terraform apply -auto-approve tfplan
+      working-directory: ./infra
+      env:
+        TF_VAR_aws_account_id: ${{ secrets.AWS_ACCOUNT_ID }}
+        TF_VAR_lambda_function_name: ${{ env.LAMBDA_FUNCTION_NAME }}
+        TF_VAR_image_tag: ${{ env.IMAGE_TAG }}
+
     - name: Login to Amazon ECR
       run: |
         aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
 
-    - name: Build, Push and Pull Docker Image
+    - name: Build, Tag and Push Docker Image
       run: |
         docker build -t ${{ env.ECR_REPOSITORY }} .
         docker tag ${{ env.ECR_REPOSITORY }}:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
