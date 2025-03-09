@@ -13,9 +13,14 @@ langchain-aws = "==0.2.13"
 langgraph = "*"
 langsmith = "*"
 langchain-openai = "*"
+fastapi = "*"
+uvicorn = "*"
 
 [dev-packages]
 pre-commit = "*"
 
 [requires]
 python_version = "3.11"
+
+[scripts]
+start = "python src/main.py"
