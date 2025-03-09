@@ -6,11 +6,13 @@ from langchain_aws import BedrockEmbeddings, BedrockRerank
 from langchain_qdrant import QdrantVectorStore
 from qdrant_client import QdrantClient
 
+from config.settings import settings
+
 embeddings = BedrockEmbeddings()
 
 qdrant_client = QdrantClient(
-    location=os.getenv("VECTOR_STORE_URL", "http://localhost:6333"),
-    api_key=os.getenv("VECTOR_STORE_API_KEY", "api_key"),
+    location=settings.VECTOR_STORE_URL,
+    api_key=settings.VECTOR_STORE_API_KEY,
 )
 
 bedrock_rerank = BedrockRerank(
