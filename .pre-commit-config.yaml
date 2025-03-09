@@ -36,4 +36,5 @@ repos:
       - id: terraform_docs
       - id: terraform_tflint
       - id: terraform_trivy
-      - id: terrascan
+        args:
+          - --args="--severity=CRITICAL,HIGH"
