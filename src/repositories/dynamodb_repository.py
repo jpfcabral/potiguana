@@ -11,7 +11,7 @@ class DynamoDBRepository:
     def __init__(self, client: Any = None):
         """"""
         if not client:
-            client = boto3.client("dynamodb")
+            client = boto3.client("dynamodb", region_name="us-east-1")
 
         self.client = client
 
