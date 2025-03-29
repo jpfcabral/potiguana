@@ -9,4 +9,4 @@ def lambda_handler(event, context):
     logger.info(f"Received event: {event}")
     logger.info(f"Received context: {context}")
 
-    return telegram_view.awnser_message(event)
+    return telegram_view.answer_message(event)

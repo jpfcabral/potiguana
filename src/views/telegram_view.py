@@ -12,15 +12,15 @@ telegram_service = TelegramService()
 
 
 class TelegramView:
-    def awnser_message(self, event):
+    def answer_message(self, event):
         try:
             body = json.loads(event["body"])
 
             if "message" in body:
-                return self.answer_message(body=body)
+                return self._answer_message(body=body)
 
             if "callback_query" in body:
-                return self.answer_callback_query(body=body)
+                return self._answer_callback_query(body=body)
 
             raise Exception(f"Unknown request: {body}")
         except Exception as exc:
@@ -32,30 +32,31 @@ class TelegramView:
                 "text": "Erro",
             }
 
-    def answer_message(self, body: dict):
+    def _answer_message(self, body: dict):
         message_part = body["message"].get("text")
 
         if message_part == "/start":
-            telegram_service.send_message(
-                body=body, message=GREETING, add_suggestions=True
-            )
-            return {"statusCode": 200}
+            return self._greeting(body=body)
 
         response = chatbot.answer(query=message_part)
         telegram_service.send_message(
             body=body,
             message=response["content"],
             ask_feedback=True if "route" not in response else False,
-            add_suggestions=True
-            if response.get("route", None) == "greetings"
-            else False,
+            add_suggestions=(
+                True if response.get("route", None) == "greetings" else False
+            ),
         )
 
         return {"statusCode": 200}
 
-    def answer_callback_query(self, body: dict):
+    def _answer_callback_query(self, body: dict):
         callback_id = body["callback_query"]["id"]
         telegram_service.answer_callback_query(id=callback_id)
         telegram_service.save_callback(body=body)
 
+        return {"statusCode": 200}
+
+    def _greeting(self, body: dict):
+        telegram_service.send_message(body=body, message=GREETING, add_suggestions=True)
         return {"statusCode": 200}
