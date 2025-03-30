@@ -7,6 +7,7 @@ from langgraph.prebuilt import create_react_agent
 from typing_extensions import TypedDict
 
 from agents.tools import tools
+from config.prompt import PROMPT
 
 
 class AgentState(TypedDict):
@@ -18,9 +19,5 @@ llm = ChatOpenAI(model="gpt-4o-mini")
 agent = create_react_agent(
     model=llm,
     tools=tools,
-    prompt="""
-    Você é o mascote da UFRN responsável por responder dúvidas sobre
-    questões acadêmicas. Responda somente perguntas relacionadas a
-    esse contexto.
-    """,
+    prompt=PROMPT,
 )
