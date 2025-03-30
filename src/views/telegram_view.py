@@ -34,11 +34,12 @@ class TelegramView:
 
     def _answer_message(self, body: dict):
         message_part = body["message"].get("text")
+        chat_id = body["message"]["chat"]["id"]
 
         if message_part == "/start":
             return self._greeting(body=body)
 
-        response = chatbot.answer(query=message_part)
+        response = chatbot.answer(query=message_part, chat_id=chat_id)
         telegram_service.send_message(
             body=body,
             message=response["content"],

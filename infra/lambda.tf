@@ -15,6 +15,7 @@ resource "aws_lambda_function" "my_lambda" {
       LANGSMITH_ENDPOINT   = jsondecode(data.aws_secretsmanager_secret_version.my_secret_version.secret_string)["langsmith_endpoint"]
       LANGSMITH_API_KEY    = jsondecode(data.aws_secretsmanager_secret_version.my_secret_version.secret_string)["langsmith_api_key"]
       LANGSMITH_PROJECT    = jsondecode(data.aws_secretsmanager_secret_version.my_secret_version.secret_string)["langsmith_project"]
+      MONGO_URI            = jsondecode(data.aws_secretsmanager_secret_version.my_secret_version.secret_string)["mongo_uri"]
     }
   }
 }
